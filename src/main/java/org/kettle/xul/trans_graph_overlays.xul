@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="file://E:/workspaces/sprint_workspace/pentaho-xul/test/resource/documents/xul.css" type="text/css"?>
+<overlay id="spoon-tools-menu-dataset" title="Spoon Tools Menu Data Set"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	xmlns:HTML="http://www.w3.org/Profiles/XHTML-transitional" height="600"
+	width="800" xmlns:pen="http://www.pentaho.org/2008/xul">
+
+  <!-- 
+     
+     This is the overlay for the transformation graph step menu
+     
+   -->
+  <menupopup id="trans-graph-entry">
+     <menu id="trans-graph-step-debug" label="Logging...">
+      <menupopup id="trans-graph-step-debug-popup">
+        <menuitem label="Set specific step logging level" command="debugHelper.setStepLoggingLevel()" />
+        <menuitem label="Clear specific step logging level" command="debugHelper.clearStepLoggingLevel()" />
+      </menupopup>
+     </menu>        
+  </menupopup>
+
+  <!-- 
+     
+     This is the overlay for the transformation background context menu
+     
+  <menupopup id="trans-graph-background">  
+     <menuseparator />
+     <menu id="trans-graph-unit-tests" label="Unit tests">
+	    <menupopup id="trans-graph-unit-tests-popup">
+        <menuitem label="Create unit test" command="dataSetHelper.createUnitTest()" />
+        <menuitem label="Select unit test" command="dataSetHelper.selectUnitTest()" />
+        <menuitem label="Detach unit test" command="dataSetHelper.detachUnitTest()" />
+      </menupopup>
+     </menu>        
+  </menupopup>
+  
+   -->
+
+</overlay>
