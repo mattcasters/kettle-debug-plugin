@@ -1,6 +1,7 @@
 package org.kettle.xp;
 
 import org.kettle.DebugPluginsHelper;
+import org.kettle.util.Defaults;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.extension.ExtensionPoint;
 import org.pentaho.di.core.extension.ExtensionPointInterface;
@@ -32,25 +33,23 @@ public class SetStepDebugLevelExtensionPoint implements ExtensionPointInterface 
       return;
     }
 
-    logChannelInterface.logBasic( "!!!!! SET DEBUG LEVELS ON STEP COPIES !!!!!" );
     Trans trans= (Trans) o;
 
-    Map<TransMeta, Map<StepMeta, LogLevel>> transStepLevelMap = DebugPluginsHelper.getInstance().getTransStepLevelMap();
-
-    Map<StepMeta, LogLevel> stepLevelMap = transStepLevelMap.get( trans.getTransMeta() );
+    Map<String, String> stepLevelMap = trans.getTransMeta().getAttributesMap().get( Defaults.TRANSMETA_DEBUG_GROUP );
 
     if (stepLevelMap!=null) {
 
-      logChannelInterface.logBasic( "!!!!! SET DEBUG LEVELS ON TRANSFORMATION "+trans.getTransMeta().getName());
+      logChannelInterface.logDetailed("SET DEBUG LEVELS ON TRANSFORMATION "+trans.getTransMeta().getName());
 
-      for (StepMeta stepMeta : stepLevelMap.keySet() ) {
-        List<StepInterface> baseSteps = trans.findBaseSteps( stepMeta.getName() );
-        LogLevel logLevel = stepLevelMap.get( stepMeta );
+      for (String stepname: stepLevelMap.keySet() ) {
+        List<StepInterface> baseSteps = trans.findBaseSteps( stepname );
+        String logLevelCode = stepLevelMap.get( stepname );
         for (StepInterface stepInterface : baseSteps) {
           if (stepInterface instanceof BaseStep) {
             BaseStep baseStep = (BaseStep) stepInterface;
+            LogLevel logLevel = LogLevel.getLogLevelForCode( logLevelCode );
             baseStep.setLogLevel( logLevel );
-            logChannelInterface.logBasic( "!!!!! SET DEBUG LEVELS ON STEP COPY "+baseStep.getStepname()+"."+baseStep.getCopy());
+            logChannelInterface.logDetailed( "SET LOGGING LEVEL "+logLevel.getDescription()+" ON STEP COPY "+baseStep.getStepname()+"."+baseStep.getCopy());
           }
         }
       }

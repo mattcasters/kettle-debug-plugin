@@ -22,6 +22,8 @@
 
 package org.kettle;
 
+import org.apache.commons.lang.StringUtils;
+import org.kettle.util.Defaults;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.gui.SpoonFactory;
 import org.pentaho.di.core.logging.LogLevel;
@@ -42,10 +44,7 @@ public class DebugPluginsHelper extends AbstractXulEventHandler implements ISpoo
 
   private static DebugPluginsHelper instance = null;
 
-  private Map<TransMeta, Map<StepMeta, LogLevel>> transStepLevelMap;
-    
   private DebugPluginsHelper() {
-    transStepLevelMap = new HashMap<>();
   }
 
   public static DebugPluginsHelper getInstance() {
@@ -69,6 +68,10 @@ public class DebugPluginsHelper extends AbstractXulEventHandler implements ISpoo
     setClearLogLevel(true);
   }
 
+  public void clearStepLoggingLevel() {
+    setClearLogLevel( false );
+  }
+
   private void setClearLogLevel(boolean set) {
     Spoon spoon = ( (Spoon) SpoonFactory.getInstance() );
     TransGraph transGraph = spoon.getActiveTransGraph();
@@ -78,24 +81,32 @@ public class DebugPluginsHelper extends AbstractXulEventHandler implements ISpoo
       return;
     }
 
-    Map<StepMeta, LogLevel> stepLevelMap = transStepLevelMap.get( transMeta );
-    if ( stepLevelMap == null ) {
-      stepLevelMap = new HashMap<>();
-      transStepLevelMap.put( transMeta, stepLevelMap );
+    Map<String, Map<String, String>> attributesMap = transMeta.getAttributesMap();
+    Map<String, String> debugGroupAttributesMap = attributesMap.get( Defaults.TRANSMETA_DEBUG_GROUP );
+
+    if (debugGroupAttributesMap==null) {
+      debugGroupAttributesMap = new HashMap<>();
+      attributesMap.put(Defaults.TRANSMETA_DEBUG_GROUP, debugGroupAttributesMap);
     }
 
     if (!set) {
-      stepLevelMap.remove( stepMeta );
+      debugGroupAttributesMap.remove( stepMeta.getName() );
+      transMeta.setChanged();
+      spoon.refreshGraph();
       return;
     }
 
-    LogLevel previousLogLevel = stepLevelMap.get( stepMeta );
+    String previousLogLevelCode = debugGroupAttributesMap.get( stepMeta.getName() );
+    LogLevel previousLogLevel = null;
+    if ( StringUtils.isNotEmpty(previousLogLevelCode)) {
+      previousLogLevel = LogLevel.getLogLevelForCode( previousLogLevelCode );
+    }
 
     String[] descriptions = LogLevel.getLogLevelDescriptions();
     EnterSelectionDialog dialog = new EnterSelectionDialog( spoon.getShell(), descriptions, "Select logging level", "Select logging level" );
     String levelDescription;
     if ( previousLogLevel != null ) {
-      levelDescription = dialog.open( previousLogLevel.getLevel() );
+      levelDescription = dialog.open(  );
     } else {
       levelDescription = dialog.open();
     }
@@ -103,14 +114,22 @@ public class DebugPluginsHelper extends AbstractXulEventHandler implements ISpoo
       return;
     }
     LogLevel stepLogLevel = LogLevel.values()[ Const.indexOfString(levelDescription, LogLevel.getLogLevelDescriptions() ) ];
-    stepLevelMap.put( stepMeta, stepLogLevel );
+    debugGroupAttributesMap.put( stepMeta.getName(), stepLogLevel.getCode() );
+    transMeta.setChanged();
+    spoon.refreshGraph();
   }
 
-  public void clearStepLoggingLevel() {
-    setClearLogLevel( false );
-  }
-
-  public Map<TransMeta, Map<StepMeta, LogLevel>> getTransStepLevelMap() {
-    return transStepLevelMap;
+  public void clearAllLogging() {
+    Spoon spoon = ( (Spoon) SpoonFactory.getInstance() );
+    TransGraph transGraph = spoon.getActiveTransGraph();
+    TransMeta transMeta = spoon.getActiveTransformation();
+    StepMeta stepMeta = transGraph.getCurrentStep();
+    if ( transGraph == null || transMeta == null || stepMeta == null ) {
+      return;
+    }
+    Map<String, Map<String, String>> attributesMap = transMeta.getAttributesMap();
+    attributesMap.remove( Defaults.TRANSMETA_DEBUG_GROUP );
+    transMeta.setChanged();
+    spoon.refreshGraph();
   }
 }
