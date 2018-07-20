@@ -50,7 +50,15 @@ public class LogJobExecutionTimeExtensionPoint implements ExtensionPointInterfac
         long second = TimeUnit.SECONDS.toSeconds((long)seconds) - (TimeUnit.SECONDS.toMinutes((long)seconds) *60);
         long ms = (long)((seconds - ((long)seconds))*1000);
 
-        log.logBasic("Job duration : "+seconds+" seconds [ "+day+"d "+hours+"h "+minute+"' "+second+"."+ms+"\"]");
+
+
+        log.logBasic("Job duration : "+
+          String.format("%0.000d", seconds)+" seconds [ "+
+          day+"d "+
+          hours+"h "+
+          String.format("%02d", minute)+"' "+
+          String.format("%02d", second)+"."+
+          String.format("%03d", ms)+"\"]");
       }
     } );
   }
