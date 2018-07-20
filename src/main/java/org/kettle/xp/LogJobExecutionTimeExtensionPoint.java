@@ -53,7 +53,7 @@ public class LogJobExecutionTimeExtensionPoint implements ExtensionPointInterfac
 
 
         log.logBasic("Job duration : "+
-          String.format("%0.000d", seconds)+" seconds [ "+
+          seconds+" seconds [ "+
           day+"d "+
           hours+"h "+
           String.format("%02d", minute)+"' "+

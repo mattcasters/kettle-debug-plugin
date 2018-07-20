@@ -54,7 +54,7 @@ public class LogTransExecutionTimeExtensionPoint implements ExtensionPointInterf
         long ms = (long)((seconds - ((long)seconds))*1000);
 
         log.logBasic("Transformation duration : "+
-          String.format("%0.000d", seconds)+" seconds [ "+
+          seconds+" seconds [ "+
           day+"d "+
           hours+"h "+
           String.format("%02d", minute)+"' "+
