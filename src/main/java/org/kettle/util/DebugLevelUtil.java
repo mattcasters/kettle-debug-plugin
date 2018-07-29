@@ -50,4 +50,10 @@ public class DebugLevelUtil {
   }
 
 
+  public static void clearDebugLevel( Map<String,String> debugGroupAttributesMap, String stepName) {
+    debugGroupAttributesMap.remove(stepName+ " : " + Defaults.TRANSMETA_ATTR_LOGLEVEL);
+    debugGroupAttributesMap.remove(stepName+ " : " + Defaults.TRANSMETA_ATTR_START_ROW);
+    debugGroupAttributesMap.remove(stepName+ " : " + Defaults.TRANSMETA_ATTR_END_ROW);
+    debugGroupAttributesMap.remove(stepName+ " : " + Defaults.TRANSMETA_ATTR_CONDITION);
+  }
 }

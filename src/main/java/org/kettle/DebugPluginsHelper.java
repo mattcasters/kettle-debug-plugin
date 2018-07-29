@@ -100,7 +100,7 @@ public class DebugPluginsHelper extends AbstractXulEventHandler implements ISpoo
       }
 
       if ( !set ) {
-        debugGroupAttributesMap.remove( stepMeta.getName() );
+        DebugLevelUtil.clearDebugLevel( debugGroupAttributesMap, stepMeta.getName());
         transMeta.setChanged();
         spoon.refreshGraph();
         return;
