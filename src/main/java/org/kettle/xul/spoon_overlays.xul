@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="file://E:/workspaces/sprint_workspace/pentaho-xul/test/resource/documents/xul.css" type="text/css"?>
+<overlay id="spoon-view-zoom" title="Spoon view zoom menu item"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+         xmlns:HTML="http://www.w3.org/Profiles/XHTML-transitional" height="600"
+         width="800" xmlns:pen="http://www.pentaho.org/2008/xul">
+
+  <!--
+
+     This is the overlay for the Spoon View menu
+
+   -->
+  <menupopup id="view-popup">
+    <menuseparator />
+    <menuitem label="Zoom to last level" command="debugHelper.lastZoomLevel()" accesskey="ctrl-u" />
+  </menupopup>
+
+</overlay>

@@ -26,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.kettle.dialog.DebugLevelDialog;
 import org.kettle.util.DebugLevelUtil;
 import org.kettle.util.Defaults;
+import org.kettle.xp.util.ZoomLevel;
 import org.pentaho.di.core.Condition;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleValueException;
@@ -39,6 +40,7 @@ import org.pentaho.di.ui.core.dialog.EnterSelectionDialog;
 import org.pentaho.di.ui.core.dialog.ErrorDialog;
 import org.pentaho.di.ui.spoon.ISpoonMenuController;
 import org.pentaho.di.ui.spoon.Spoon;
+import org.pentaho.di.ui.spoon.job.JobGraph;
 import org.pentaho.di.ui.spoon.trans.TransGraph;
 import org.pentaho.ui.xul.dom.Document;
 import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
@@ -138,4 +140,20 @@ public class DebugPluginsHelper extends AbstractXulEventHandler implements ISpoo
     transMeta.setChanged();
     spoon.refreshGraph();
   }
+
+  public void lastZoomLevel() {
+
+    Spoon spoon = ( (Spoon) SpoonFactory.getInstance() );
+    TransGraph transGraph = spoon.getActiveTransGraph();
+    if (transGraph!=null) {
+      ZoomLevel.changeTransGraphZoomLevel();
+    }
+    JobGraph jobGraph = spoon.getActiveJobGraph();
+    if (jobGraph!=null) {
+      ZoomLevel.changeJobGraphZoomLevel();
+    }
+  }
+
+
+
 }

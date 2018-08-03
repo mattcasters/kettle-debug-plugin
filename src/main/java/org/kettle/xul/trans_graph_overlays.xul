@@ -23,18 +23,17 @@
   <!-- 
      
      This is the overlay for the transformation background context menu
-     
+
   <menupopup id="trans-graph-background">  
      <menuseparator />
-     <menu id="trans-graph-unit-tests" label="Unit tests">
-	    <menupopup id="trans-graph-unit-tests-popup">
-        <menuitem label="Create unit test" command="dataSetHelper.createUnitTest()" />
-        <menuitem label="Select unit test" command="dataSetHelper.selectUnitTest()" />
-        <menuitem label="Detach unit test" command="dataSetHelper.detachUnitTest()" />
+     <menu id="trans-zoom-level" label="zoom...">
+	    <menupopup id="trans-graph-zoom-level-popup">
+        <menuitem label="Zoom to last" command="debugHelper.lastTransZoomLevel()" accesskey="ctrl-u"/>
       </menupopup>
      </menu>        
   </menupopup>
-  
-   -->
+
+-->
+
 
 </overlay>

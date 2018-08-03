@@ -31,7 +31,7 @@ import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulException;
 
 @SpoonPlugin( id = "Debug", image = "" )
-@SpoonPluginCategories( { "spoon", "trans-graph" } )
+@SpoonPluginCategories( { "spoon", "trans-graph", "job-graph" } )
 public class DebugPluginsSpoonPlugin implements SpoonPluginInterface {
 
   public DebugPluginsSpoonPlugin() {
@@ -40,8 +40,16 @@ public class DebugPluginsSpoonPlugin implements SpoonPluginInterface {
   public void applyToContainer( String category, XulDomContainer container ) throws XulException {
     container.registerClassLoader( getClass().getClassLoader() );
 
+    if ( category.equals( "spoon" ) ) {
+      container.loadOverlay( "org/kettle/xul/spoon_overlays.xul" );
+      container.addEventHandler( DebugPluginsHelper.getInstance() );
+    }
     if ( category.equals( "trans-graph" ) ) {
       container.loadOverlay( "org/kettle/xul/trans_graph_overlays.xul" );
+      container.addEventHandler( DebugPluginsHelper.getInstance() );
+    }
+    if ( category.equals( "job-graph" ) ) {
+      container.loadOverlay( "org/kettle/xul/job_graph_overlays.xul" );
       container.addEventHandler( DebugPluginsHelper.getInstance() );
     }
   }
