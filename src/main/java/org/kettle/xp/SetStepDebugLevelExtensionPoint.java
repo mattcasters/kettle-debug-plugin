@@ -86,7 +86,7 @@ public class SetStepDebugLevelExtensionPoint implements ExtensionPointInterface 
               for ( StepInterface stepInterface : baseSteps ) {
                 if ( stepInterface instanceof BaseStep ) {
                   BaseStep baseStep = (BaseStep) stepInterface;
-                  LogLevel logLevel = LogLevel.getLogLevelForCode( logLevelCode );
+                  LogLevel logLevel = debugLevel.getLogLevel();
                   baseStep.setLogLevel( logLevel );
                   logChannelInterface.logDetailed( "SET LOGGING LEVEL " + logLevel.getDescription() + " ON STEP COPY " + baseStep.getStepname() + "." + baseStep.getCopy() );
                 }
