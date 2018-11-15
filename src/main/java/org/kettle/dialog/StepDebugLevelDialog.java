@@ -16,8 +16,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.kettle.DebugLevel;
-import org.pentaho.di.core.Condition;
+import org.kettle.StepDebugLevel;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.logging.LogLevel;
 import org.pentaho.di.core.row.RowMetaInterface;
@@ -26,14 +25,13 @@ import org.pentaho.di.ui.core.PropsUI;
 import org.pentaho.di.ui.core.gui.GUIResource;
 import org.pentaho.di.ui.core.gui.WindowProperty;
 import org.pentaho.di.ui.core.widget.ConditionEditor;
-import org.pentaho.di.ui.core.widget.TextVar;
 import org.pentaho.di.ui.trans.step.BaseStepDialog;
 
-public class DebugLevelDialog extends Dialog {
-  private static Class<?> PKG = DebugLevelDialog.class; // for i18n purposes, needed by Translator2!!
+public class StepDebugLevelDialog extends Dialog {
+  private static Class<?> PKG = StepDebugLevelDialog.class; // for i18n purposes, needed by Translator2!!
 
-  private DebugLevel input;
-  private DebugLevel debugLevel;
+  private StepDebugLevel input;
+  private StepDebugLevel debugLevel;
   private RowMetaInterface inputRowMeta;
 
   private Shell shell;
@@ -54,7 +52,7 @@ public class DebugLevelDialog extends Dialog {
 
   private boolean ok;
 
-  public DebugLevelDialog( Shell par, DebugLevel debugLevel, RowMetaInterface inputRowMeta) {
+  public StepDebugLevelDialog( Shell par, StepDebugLevel debugLevel, RowMetaInterface inputRowMeta) {
     super( par, SWT.NONE );
     this.input = debugLevel;
     this.inputRowMeta = inputRowMeta;
@@ -78,13 +76,13 @@ public class DebugLevelDialog extends Dialog {
     formLayout.marginWidth = Const.FORM_MARGIN;
     formLayout.marginHeight = Const.FORM_MARGIN;
 
-    shell.setText( "Debug Level" );
+    shell.setText( "Step debug Level" );
     shell.setLayout( formLayout );
 
     // The name
     Label wlName = new Label( shell, SWT.RIGHT );
     props.setLook( wlName );
-    wlName.setText( "Log level to conditionally set" );
+    wlName.setText( "Log level to set " );
     FormData fdlName = new FormData();
     fdlName.top = new FormAttachment( 0, margin );
     fdlName.left = new FormAttachment( 0, 0 ); // First one in the left top corner
@@ -103,7 +101,7 @@ public class DebugLevelDialog extends Dialog {
     // Start row option
     Label wlStartRow = new Label( shell, SWT.RIGHT );
     props.setLook( wlStartRow );
-    wlStartRow.setText( "Start row");
+    wlStartRow.setText( "Start row ");
     FormData fdlStartRow = new FormData();
     fdlStartRow.top = new FormAttachment( lastControl, margin );
     fdlStartRow.left = new FormAttachment( 0, 0 ); // First one in the left top corner
@@ -121,7 +119,7 @@ public class DebugLevelDialog extends Dialog {
     // End row
     Label wlEndRow = new Label( shell, SWT.RIGHT );
     props.setLook( wlEndRow );
-    wlEndRow.setText( "End row" );
+    wlEndRow.setText( "End row " );
     FormData fdlEndRow = new FormData();
     fdlEndRow.top = new FormAttachment( lastControl, margin );
     fdlEndRow.left = new FormAttachment( 0, 0 ); // First one in the left top corner
@@ -154,6 +152,7 @@ public class DebugLevelDialog extends Dialog {
       }
     };
 
+    wLogLevel.addSelectionListener( selAdapter );
     wStartRow.addSelectionListener( selAdapter );
     wEndRow.addSelectionListener( selAdapter );
 
@@ -222,7 +221,7 @@ public class DebugLevelDialog extends Dialog {
   }
 
   // Get dialog info in securityService
-  private void getInfo( DebugLevel level ) {
+  private void getInfo( StepDebugLevel level ) {
     int index = Const.indexOfString( wLogLevel.getText(), LogLevel.getLogLevelDescriptions() );
     level.setLogLevel( LogLevel.values()[index] );
     level.setStartRow( Const.toInt( wStartRow.getText(), -1) );

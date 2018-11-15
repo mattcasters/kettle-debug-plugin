@@ -3,33 +3,33 @@ package org.kettle;
 import org.pentaho.di.core.Condition;
 import org.pentaho.di.core.logging.LogLevel;
 
-public class DebugLevel implements Cloneable {
+public class StepDebugLevel implements Cloneable {
   private LogLevel logLevel;
   private int startRow;
   private int endRow;
   private Condition condition;
 
-  public DebugLevel() {
+  public StepDebugLevel() {
     condition = new Condition();
     logLevel=LogLevel.DEBUG;
     startRow=-1;
     endRow=-1;
   }
 
-  public DebugLevel( LogLevel logLevel ) {
+  public StepDebugLevel( LogLevel logLevel ) {
     this();
     this.logLevel = logLevel;
   }
 
-  public DebugLevel( LogLevel logLevel, int startRow, int endRow, Condition condition ) {
+  public StepDebugLevel( LogLevel logLevel, int startRow, int endRow, Condition condition ) {
     this(logLevel);
     this.startRow = startRow;
     this.endRow = endRow;
     this.condition = condition;
   }
 
-  @Override public DebugLevel clone() {
-    return new DebugLevel(logLevel, startRow, endRow, (Condition) condition.clone() );
+  @Override public StepDebugLevel clone() {
+    return new StepDebugLevel(logLevel, startRow, endRow, (Condition) condition.clone() );
   }
 
   /**

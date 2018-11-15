@@ -5,21 +5,22 @@
 	xmlns:HTML="http://www.w3.org/Profiles/XHTML-transitional" height="600"
 	width="800" xmlns:pen="http://www.pentaho.org/2008/xul">
 
-  <!-- 
-     
-     This is the overlay for the job graph step menu
-     
+  <!--
 
-  <menupopup id="job-graph-entry">
-     <menu id="job-graph-jobentry-debug" label="Logging...">
-      <menupopup id="job-graph-jobentry-debug-popup">
+     This is the overlay for the job graph entry menu
+   -->
+
+
+	<menupopup id="job-graph-entry">
+		<menu id="job-graph-jobentry-debug" label="Logging...">
+			<menuseparator />
+			<menupopup id="job-graph-jobentry-debug-popup">
         <menuitem label="Set specific jobentry logging level" command="debugHelper.setJobEntryLoggingLevel()" />
-        <menuitem label="Clear specific step logging level" command="debugHelper.clearJobEntryLoggingLevel()" />
-        <menuitem label="Clear all logging info from steps" command="debugHelper.clearAllJobLogging()" />
+        <menuitem label="Clear specific job entry logging level" command="debugHelper.clearJobEntryLoggingLevel()" />
+        <menuitem label="Clear all logging info from job" command="debugHelper.clearAllJobLogging()" />
       </menupopup>
      </menu>        
   </menupopup>
-   -->
 
   <!-- 
      

@@ -1,6 +1,6 @@
 package org.kettle.xp;
 
-import org.kettle.DebugLevel;
+import org.kettle.StepDebugLevel;
 import org.kettle.util.DebugLevelUtil;
 import org.kettle.util.Defaults;
 import org.kettle.xp.util.SvgLoader;
@@ -15,14 +15,14 @@ import java.awt.image.BufferedImage;
 import java.util.Map;
 
 @ExtensionPoint(
-  id = "DrawDebugLevelBeeExtensionPoint",
+  id = "DrawStepDebugLevelBeeExtensionPoint",
   description = "Draw a bee over a step which has debug level information stored",
   extensionPointId = "TransPainterStep"
 )
 /**
  * Paint steps that have a debug level set...
  */
-public class DrawDebugLevelBeeExtensionPoint implements ExtensionPointInterface {
+public class DrawStepDebugLevelBeeExtensionPoint implements ExtensionPointInterface {
 
   private static BufferedImage beeImage;
 
@@ -38,13 +38,13 @@ public class DrawDebugLevelBeeExtensionPoint implements ExtensionPointInterface 
       Spoon spoon = Spoon.getInstance();
       TransPainterExtension tpe = (TransPainterExtension) o;
 
-      Map<String, String> stepLevelMap = tpe.transMeta.getAttributesMap().get( Defaults.TRANSMETA_DEBUG_GROUP );
+      Map<String, String> stepLevelMap = tpe.transMeta.getAttributesMap().get( Defaults.DEBUG_GROUP );
 
       if ( stepLevelMap != null ) {
 
         String stepname = tpe.stepMeta.getName();
 
-        final DebugLevel debugLevel = DebugLevelUtil.getDebugLevel( stepLevelMap, stepname );
+        final StepDebugLevel debugLevel = DebugLevelUtil.getStepDebugLevel( stepLevelMap, stepname );
         if ( debugLevel != null ) {
 
           // Paint the bee...

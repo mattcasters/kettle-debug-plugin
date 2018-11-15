@@ -1,7 +1,6 @@
 package org.kettle.xp;
 
-import org.kettle.DebugLevel;
-import org.kettle.DebugPluginsHelper;
+import org.kettle.StepDebugLevel;
 import org.kettle.util.DebugLevelUtil;
 import org.kettle.util.Defaults;
 import org.pentaho.di.core.Condition;
@@ -9,23 +8,17 @@ import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.extension.ExtensionPoint;
 import org.pentaho.di.core.extension.ExtensionPointInterface;
-import org.pentaho.di.core.extension.KettleExtensionPoint;
 import org.pentaho.di.core.logging.LogChannelInterface;
 import org.pentaho.di.core.logging.LogLevel;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.BaseStep;
 import org.pentaho.di.trans.step.RowAdapter;
 import org.pentaho.di.trans.step.StepInterface;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.step.StepMetaDataCombi;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 @ExtensionPoint(
@@ -45,7 +38,7 @@ public class SetStepDebugLevelExtensionPoint implements ExtensionPointInterface 
 
     Trans trans= (Trans) o;
 
-    Map<String, String> stepLevelMap = trans.getTransMeta().getAttributesMap().get( Defaults.TRANSMETA_DEBUG_GROUP );
+    Map<String, String> stepLevelMap = trans.getTransMeta().getAttributesMap().get( Defaults.DEBUG_GROUP );
 
     if (stepLevelMap!=null) {
 
@@ -69,7 +62,7 @@ public class SetStepDebugLevelExtensionPoint implements ExtensionPointInterface 
 
         try {
 
-          final DebugLevel debugLevel = DebugLevelUtil.getDebugLevel( stepLevelMap, stepname );
+          final StepDebugLevel debugLevel = DebugLevelUtil.getStepDebugLevel( stepLevelMap, stepname );
           if ( debugLevel != null ) {
 
             logChannelInterface.logDetailed("Found debug level info for step "+stepname);

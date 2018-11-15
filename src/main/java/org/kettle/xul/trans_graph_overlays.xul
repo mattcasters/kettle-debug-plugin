@@ -15,7 +15,7 @@
       <menupopup id="trans-graph-step-debug-popup">
         <menuitem label="Set specific step logging level" command="debugHelper.setStepLoggingLevel()" />
         <menuitem label="Clear specific step logging level" command="debugHelper.clearStepLoggingLevel()" />
-        <menuitem label="Clear all logging info from steps" command="debugHelper.clearAllLogging()" />
+        <menuitem label="Clear all logging info from transformation" command="debugHelper.clearAllTransLogging()" />
       </menupopup>
      </menu>        
   </menupopup>

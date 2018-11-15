@@ -22,21 +22,18 @@
 
 package org.kettle;
 
-import org.apache.commons.lang.StringUtils;
-import org.kettle.dialog.DebugLevelDialog;
+import org.kettle.dialog.JobEntryDebugLevelDialog;
+import org.kettle.dialog.StepDebugLevelDialog;
 import org.kettle.util.DebugLevelUtil;
 import org.kettle.util.Defaults;
 import org.kettle.xp.util.ZoomLevel;
-import org.pentaho.di.core.Condition;
-import org.pentaho.di.core.Const;
-import org.pentaho.di.core.exception.KettleValueException;
-import org.pentaho.di.core.exception.KettleXMLException;
 import org.pentaho.di.core.gui.SpoonFactory;
-import org.pentaho.di.core.logging.LogLevel;
+import org.pentaho.di.core.row.RowMeta;
 import org.pentaho.di.core.row.RowMetaInterface;
+import org.pentaho.di.job.JobMeta;
+import org.pentaho.di.job.entry.JobEntryCopy;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.ui.core.dialog.EnterSelectionDialog;
 import org.pentaho.di.ui.core.dialog.ErrorDialog;
 import org.pentaho.di.ui.spoon.ISpoonMenuController;
 import org.pentaho.di.ui.spoon.Spoon;
@@ -45,8 +42,6 @@ import org.pentaho.di.ui.spoon.trans.TransGraph;
 import org.pentaho.ui.xul.dom.Document;
 import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
 
-import java.io.UnsupportedEncodingException;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -75,72 +70,6 @@ public class DebugPluginsHelper extends AbstractXulEventHandler implements ISpoo
     // Nothing so far.
   }
 
-  public void setStepLoggingLevel() {
-    setClearLogLevel(true);
-  }
-
-  public void clearStepLoggingLevel() {
-    setClearLogLevel( false );
-  }
-
-  private void setClearLogLevel(boolean set) {
-    Spoon spoon = ( (Spoon) SpoonFactory.getInstance() );
-    try {
-      TransGraph transGraph = spoon.getActiveTransGraph();
-      TransMeta transMeta = spoon.getActiveTransformation();
-      StepMeta stepMeta = transGraph.getCurrentStep();
-      if ( transGraph == null || transMeta == null || stepMeta == null ) {
-        return;
-      }
-
-      Map<String, Map<String, String>> attributesMap = transMeta.getAttributesMap();
-      Map<String, String> debugGroupAttributesMap = attributesMap.get( Defaults.TRANSMETA_DEBUG_GROUP );
-
-      if ( debugGroupAttributesMap == null ) {
-        debugGroupAttributesMap = new HashMap<>();
-        attributesMap.put( Defaults.TRANSMETA_DEBUG_GROUP, debugGroupAttributesMap );
-      }
-
-      if ( !set ) {
-        DebugLevelUtil.clearDebugLevel( debugGroupAttributesMap, stepMeta.getName());
-        transMeta.setChanged();
-        spoon.refreshGraph();
-        return;
-      }
-
-      DebugLevel debugLevel = DebugLevelUtil.getDebugLevel( debugGroupAttributesMap, stepMeta.getName() );
-      if ( debugLevel==null ) {
-        debugLevel = new DebugLevel();
-      }
-
-      RowMetaInterface inputRowMeta = transMeta.getPrevStepFields( stepMeta );
-      DebugLevelDialog dialog = new DebugLevelDialog( spoon.getShell(), debugLevel, inputRowMeta );
-      if (dialog.open()) {
-        DebugLevelUtil.storeDebugLevel(debugGroupAttributesMap, stepMeta.getName(), debugLevel);
-      }
-
-      transMeta.setChanged();
-      spoon.refreshGraph();
-    } catch(Exception e) {
-      new ErrorDialog( spoon.getShell(), "Error", "Unexpected error", e );
-    }
-  }
-
-
-  public void clearAllLogging() {
-    Spoon spoon = ( (Spoon) SpoonFactory.getInstance() );
-    TransGraph transGraph = spoon.getActiveTransGraph();
-    TransMeta transMeta = spoon.getActiveTransformation();
-    StepMeta stepMeta = transGraph.getCurrentStep();
-    if ( transGraph == null || transMeta == null || stepMeta == null ) {
-      return;
-    }
-    Map<String, Map<String, String>> attributesMap = transMeta.getAttributesMap();
-    attributesMap.remove( Defaults.TRANSMETA_DEBUG_GROUP );
-    transMeta.setChanged();
-    spoon.refreshGraph();
-  }
-
   public void lastZoomLevel() {
 
     Spoon spoon = ( (Spoon) SpoonFactory.getInstance() );
@@ -154,6 +83,133 @@ public class DebugPluginsHelper extends AbstractXulEventHandler implements ISpoo
     }
   }
 
+  public void setStepLoggingLevel() {
+    setClearStepLogLevel(true);
+  }
+
+  public void clearStepLoggingLevel() {
+    setClearStepLogLevel( false );
+  }
+
+  private void setClearStepLogLevel( boolean set) {
+    Spoon spoon = ( (Spoon) SpoonFactory.getInstance() );
+    try {
+      TransGraph transGraph = spoon.getActiveTransGraph();
+      TransMeta transMeta = spoon.getActiveTransformation();
+      StepMeta stepMeta = transGraph.getCurrentStep();
+      if ( transGraph == null || transMeta == null || stepMeta == null ) {
+        return;
+      }
+
+      Map<String, Map<String, String>> attributesMap = transMeta.getAttributesMap();
+      Map<String, String> debugGroupAttributesMap = attributesMap.get( Defaults.DEBUG_GROUP );
+
+      if ( debugGroupAttributesMap == null ) {
+        debugGroupAttributesMap = new HashMap<>();
+        attributesMap.put( Defaults.DEBUG_GROUP, debugGroupAttributesMap );
+      }
+
+      if ( !set ) {
+        DebugLevelUtil.clearDebugLevel( debugGroupAttributesMap, stepMeta.getName());
+        transMeta.setChanged();
+        spoon.refreshGraph();
+        return;
+      }
+
+      StepDebugLevel debugLevel = DebugLevelUtil.getStepDebugLevel( debugGroupAttributesMap, stepMeta.getName() );
+      if ( debugLevel==null ) {
+        debugLevel = new StepDebugLevel();
+      }
+
+      RowMetaInterface inputRowMeta = transMeta.getPrevStepFields( stepMeta );
+      StepDebugLevelDialog dialog = new StepDebugLevelDialog( spoon.getShell(), debugLevel, inputRowMeta );
+      if (dialog.open()) {
+        DebugLevelUtil.storeStepDebugLevel(debugGroupAttributesMap, stepMeta.getName(), debugLevel);
+      }
+
+      transMeta.setChanged();
+      spoon.refreshGraph();
+    } catch(Exception e) {
+      new ErrorDialog( spoon.getShell(), "Error", "Unexpected error", e );
+    }
+  }
 
 
+  public void clearAllTransLogging() {
+    Spoon spoon = ( (Spoon) SpoonFactory.getInstance() );
+    TransGraph transGraph = spoon.getActiveTransGraph();
+    TransMeta transMeta = spoon.getActiveTransformation();
+    StepMeta stepMeta = transGraph.getCurrentStep();
+    if ( transGraph == null || transMeta == null || stepMeta == null ) {
+      return;
+    }
+    Map<String, Map<String, String>> attributesMap = transMeta.getAttributesMap();
+    attributesMap.remove( Defaults.DEBUG_GROUP );
+    transMeta.setChanged();
+    spoon.refreshGraph();
+  }
+
+  public void setJobEntryLoggingLevel() {
+    setClearJobEntryLogLevel(true);
+  }
+
+  public void clearJobEntryLoggingLevel() {
+    setClearJobEntryLogLevel( false );
+  }
+
+  private void setClearJobEntryLogLevel( boolean set) {
+    Spoon spoon = ( (Spoon) SpoonFactory.getInstance() );
+    try {
+      JobGraph jobGraph = spoon.getActiveJobGraph();
+      JobMeta jobMeta = spoon.getActiveJob();
+      JobEntryCopy jobEntryCopy = jobGraph.getJobEntry();
+      if ( jobGraph == null || jobMeta == null || jobEntryCopy == null ) {
+
+        return;
+      }
+
+      Map<String, Map<String, String>> attributesMap = jobMeta.getAttributesMap();
+      Map<String, String> debugGroupAttributesMap = attributesMap.get( Defaults.DEBUG_GROUP );
+      if ( debugGroupAttributesMap == null ) {
+        debugGroupAttributesMap = new HashMap<>();
+        attributesMap.put( Defaults.DEBUG_GROUP, debugGroupAttributesMap );
+      }
+
+      if ( !set ) {
+        DebugLevelUtil.clearDebugLevel( debugGroupAttributesMap, jobEntryCopy.toString());
+        jobMeta.setChanged();
+        spoon.refreshGraph();
+        return;
+      }
+
+      JobEntryDebugLevel debugLevel = DebugLevelUtil.getJobEntryDebugLevel( debugGroupAttributesMap, jobEntryCopy.toString() );
+      if ( debugLevel==null ) {
+        debugLevel = new JobEntryDebugLevel();
+      }
+
+      JobEntryDebugLevelDialog dialog = new JobEntryDebugLevelDialog( spoon.getShell(), debugLevel);
+      if (dialog.open()) {
+        DebugLevelUtil.storeJobEntryDebugLevel(debugGroupAttributesMap, jobEntryCopy.toString(), debugLevel);
+      }
+
+      jobMeta.setChanged();
+      spoon.refreshGraph();
+    } catch(Exception e) {
+      new ErrorDialog( spoon.getShell(), "Error", "Unexpected error", e );
+    }
+  }
+
+  public void clearAllJobLogging() {
+    Spoon spoon = ( (Spoon) SpoonFactory.getInstance() );
+    JobGraph jobGraph = spoon.getActiveJobGraph();
+    JobMeta jobMeta = spoon.getActiveJob();
+    JobEntryCopy jobEntry = jobGraph.getJobEntry();
+    if ( jobGraph == null || jobMeta == null || jobEntry == null ) {
+      return;
+    }
+    Map<String, Map<String, String>> attributesMap = jobMeta.getAttributesMap();
+    attributesMap.remove( Defaults.DEBUG_GROUP );
+    jobMeta.setChanged();
+    spoon.refreshGraph();
+  }
 }
