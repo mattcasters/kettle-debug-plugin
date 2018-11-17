@@ -1,5 +1,6 @@
 package org.kettle.xp;
 
+import org.kettle.util.DebugLevelUtil;
 import org.kettle.util.Defaults;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.extension.ExtensionPoint;
@@ -42,23 +43,9 @@ public class LogJobExecutionTimeExtensionPoint implements ExtensionPointInterfac
     job.addJobListener( new JobAdapter() {
       @Override public void jobFinished( Job job ) throws KettleException {
         long endTime = System.currentTimeMillis();
-
         double seconds = ((double)endTime - (double)startTime) / 1000;
-        int day = (int)TimeUnit.SECONDS.toDays((long)seconds);
-        long hours = TimeUnit.SECONDS.toHours((long)seconds) - (day *24);
-        long minute = TimeUnit.SECONDS.toMinutes((long)seconds) - (TimeUnit.SECONDS.toHours((long)seconds)* 60);
-        long second = TimeUnit.SECONDS.toSeconds((long)seconds) - (TimeUnit.SECONDS.toMinutes((long)seconds) *60);
-        long ms = (long)((seconds - ((long)seconds))*1000);
+        log.logBasic("Job duration : "+ seconds+" seconds [ "+ DebugLevelUtil.getDurationHMS( seconds ) +" ]");
 
-
-
-        log.logBasic("Job duration : "+
-          seconds+" seconds [ "+
-          day+"d "+
-          hours+"h "+
-          String.format("%02d", minute)+"' "+
-          String.format("%02d", second)+"."+
-          String.format("%03d", ms)+"\"]");
       }
     } );
   }
