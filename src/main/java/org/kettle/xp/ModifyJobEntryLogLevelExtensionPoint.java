@@ -11,6 +11,7 @@ import org.pentaho.di.core.extension.ExtensionPoint;
 import org.pentaho.di.core.extension.ExtensionPointInterface;
 import org.pentaho.di.core.logging.LogChannelInterface;
 import org.pentaho.di.core.logging.LogLevel;
+import org.pentaho.di.core.logging.LoggingObjectInterface;
 import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.core.variables.Variables;
 import org.pentaho.di.job.Job;
@@ -19,6 +20,7 @@ import org.pentaho.di.job.JobExecutionExtension;
 import org.pentaho.di.job.JobMeta;
 import org.pentaho.di.job.entry.JobEntryCopy;
 import org.pentaho.di.job.entry.JobEntryInterface;
+import org.pentaho.di.trans.Trans;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -29,15 +31,56 @@ import java.util.Set;
   extensionPointId = "JobStart",
   description = "Modify the logging level of an individual job entry if needed" )
 public class ModifyJobEntryLogLevelExtensionPoint implements ExtensionPointInterface {
+
+  public static final String STRING_REFERENCE_VARIABLE_SPACE = "REFERENCE_VARIABLE_SPACE";
+
+
   @Override public void callExtensionPoint( LogChannelInterface jobLog, Object object ) throws KettleException {
+
     if ( !( object instanceof Job ) ) {
       return;
     }
 
     Job job = (Job) object;
 
-    final VariableSpace referenceSpace = new Variables();
-    referenceSpace.initializeVariablesFrom( job.getJobMeta() );
+    Job rootJob = job;
+    Trans rootTrans = null;
+    while (rootJob!=null || rootTrans!=null) {
+
+      if (rootJob!=null) {
+        if (rootJob.getParentJob()==null && rootJob.getParentTrans()==null) {
+          break;
+        }
+        rootJob = rootJob.getParentJob();
+        rootTrans = rootJob.getParentTrans();
+      } else {
+        if (rootTrans.getParentJob()==null && rootTrans.getParentTrans()==null) {
+          break;
+        }
+        rootJob = rootTrans.getParentJob();
+        rootTrans = rootTrans.getParentTrans();
+      }
+    }
+    Map<String, Object> rootDataMap;
+    if (rootJob!=null) {
+      rootDataMap = rootJob.getExtensionDataMap();
+    } else {
+      rootDataMap = rootTrans.getExtensionDataMap();
+    }
+
+    // Look for a reference variable space in the root job.
+    // If non exists, add it.  Only do this at the start of the root job, afterwards, never again.
+    //
+    final VariableSpace referenceSpace;
+    synchronized ( rootDataMap ) {
+      VariableSpace space = (VariableSpace) rootDataMap.get( STRING_REFERENCE_VARIABLE_SPACE );
+      if (space==null) {
+        space = new Variables();
+        space.initializeVariablesFrom( job.getJobMeta() );
+        rootDataMap.put(STRING_REFERENCE_VARIABLE_SPACE, space);
+      }
+      referenceSpace = space;
+    }
 
     // Find the debug info in the job metadata
     //
@@ -114,7 +157,8 @@ public class ModifyJobEntryLogLevelExtensionPoint implements ExtensionPointInter
 
                 if ( debugLevel.isLoggingResult() ) {
                   log.logMinimal( "JOB ENTRY RESULT: " );
-                  log.logMinimal( "  - Result=" + result.getResult() );
+                  log.logMinimal( "  - result=" + result.getResult() );
+                  log.logMinimal( "  - stopped=" + result.isStopped() );
                   log.logMinimal( "  - linesRead=" + result.getNrLinesRead() );
                   log.logMinimal( "  - linesWritten=" + result.getNrLinesWritten() );
                   log.logMinimal( "  - linesInput=" + result.getNrLinesInput() );

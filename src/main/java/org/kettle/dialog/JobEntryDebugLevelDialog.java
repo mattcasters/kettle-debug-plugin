@@ -1,7 +1,6 @@
 package org.kettle.dialog;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellAdapter;
@@ -10,6 +9,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
@@ -34,7 +34,7 @@ public class JobEntryDebugLevelDialog extends Dialog {
 
   // Connection properties
   //
-  private CCombo wLogLevel;
+  private Combo wLogLevel;
   private Button wLoggingResult;
   private Button wLoggingVariables;
   private Button wLoggingRows;
@@ -83,7 +83,7 @@ public class JobEntryDebugLevelDialog extends Dialog {
     fdlName.left = new FormAttachment( 0, 0 ); // First one in the left top corner
     fdlName.right = new FormAttachment( middle, -margin );
     wlName.setLayoutData( fdlName );
-    wLogLevel = new CCombo( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLogLevel = new Combo( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wLogLevel.setItems( LogLevel.getLogLevelDescriptions());
     props.setLook( wLogLevel );
     FormData fdName = new FormData();
