@@ -2,10 +2,6 @@ package org.kettle.xp.util;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
@@ -14,6 +10,7 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.ui.core.PropsUI;
+import org.pentaho.di.ui.spoon.AbstractGraph;
 import org.pentaho.di.ui.spoon.Spoon;
 import org.pentaho.di.ui.spoon.job.JobGraph;
 import org.pentaho.di.ui.spoon.trans.TransGraph;
@@ -29,12 +26,12 @@ public class ZoomLevel {
   private float lastJobMagnification;
 
   private ZoomLevel() {
-    lastTransMagnification = (float) Const.toDouble(PropsUI.getInstance().getProperty( PROPERTY_LAST_TRANS_MAGNIFICATION ), 1.0f);
-    lastJobMagnification = (float) Const.toDouble(PropsUI.getInstance().getProperty( PROPERTY_LAST_JOB_MAGNIFICATION ), 1.0f);
+    lastTransMagnification = (float) Const.toDouble( PropsUI.getInstance().getProperty( PROPERTY_LAST_TRANS_MAGNIFICATION ), 1.0f );
+    lastJobMagnification = (float) Const.toDouble( PropsUI.getInstance().getProperty( PROPERTY_LAST_JOB_MAGNIFICATION ), 1.0f );
   }
 
   public static ZoomLevel getInstance() {
-    if (zoomLevel==null) {
+    if ( zoomLevel == null ) {
       zoomLevel = new ZoomLevel();
     }
 
@@ -43,31 +40,30 @@ public class ZoomLevel {
 
   public void saveProperties() {
     PropsUI.getInstance().setProperty( PROPERTY_LAST_TRANS_MAGNIFICATION, Float.toString( lastTransMagnification ) );
-    PropsUI.getInstance().setProperty( PROPERTY_LAST_JOB_MAGNIFICATION, Float.toString( lastJobMagnification) );
+    PropsUI.getInstance().setProperty( PROPERTY_LAST_JOB_MAGNIFICATION, Float.toString( lastJobMagnification ) );
   }
 
-  private static Listener transZoomListener = event -> {
+  private static Listener zoomListener = event -> {
     // get the trans zoom level whenever it's changed actively anywhere by the user...
     //
     Combo combo = (Combo) event.widget;
     String oldZoom = combo.getText();
-    String newZoom = oldZoom.substring(0, event.start) + event.text + oldZoom.substring(event.end);
+    String newZoom = oldZoom.substring( 0, event.start ) + event.text + oldZoom.substring( event.end );
 
-    if ( StringUtils.isEmpty(oldZoom) || StringUtils.isEmpty( newZoom )) {
+    if ( StringUtils.isEmpty( oldZoom ) || StringUtils.isEmpty( newZoom ) ) {
       // Initial set, not worth remembering the incorrect value of 100% (sigh)
       //
       return;
     }
 
     String zoomText = newZoom.replace( "%", "" );
-    double magnification =  Const.toDouble( zoomText, 100.0D ) / 100;
-    ZoomLevel.getInstance().setLastTransMagnification( (float)magnification );
-
+    double magnification = Const.toDouble( zoomText, 100.0D ) / 100;
+    ZoomLevel.getInstance().setLastTransMagnification( (float) magnification );
   };
 
   public static final void changeTransGraphZoomLevel() {
     Spoon spoon = Spoon.getInstance();
-    if (spoon==null) {
+    if ( spoon == null ) {
       // Not running in spoon, don't care about zoom level...
       //
       return;
@@ -77,8 +73,11 @@ public class ZoomLevel {
 
     float magnification = ZoomLevel.getInstance().getLastTransMagnification();
 
-    TransGraph transGraph = spoon.getActiveTransGraph();
-    if (transGraph==null) {
+    correctActiveGraphZoomLevel(spoon.getActiveTransGraph(), magnification);
+  }
+
+  private static void correctActiveGraphZoomLevel( AbstractGraph graph, float magnification ) {
+    if ( graph == null ) {
       // Nothing to see here, move along!
       //
       return;
@@ -86,22 +85,31 @@ public class ZoomLevel {
 
     // Find the toolbar, try to set the zoom level based on the last transformation magnification...
     //
-    for (Control control : transGraph.getChildren()) {
-      if (control instanceof ToolBar ) {
+    for ( Control control : graph.getChildren() ) {
+      if ( control instanceof ToolBar ) {
         ToolBar toolBar = (ToolBar) control;
         // This is the toolbar at the top of the transformation...
         // Find the Combo with the zoom level
         //
-        for(ToolItem toolItem : toolBar.getItems()) {
-          if (toolItem.getControl() instanceof Combo ) {
+        for ( ToolItem toolItem : toolBar.getItems() ) {
+          if ( toolItem.getControl() instanceof Combo ) {
+            toolItem.setWidth( 150 );
+
             Combo zoomLevelCombo = (Combo) toolItem.getControl();
-            zoomLevelCombo.setText( Integer.toString(Math.round(magnification * 100.0F)) + "%");
+            if ( zoomLevelCombo.getItemCount() < 10 ) {
+              zoomLevelCombo.add( "  400%", 0 );
+              zoomLevelCombo.add( "  500%", 0 );
+              zoomLevelCombo.add( "  750%", 0 );
+              zoomLevelCombo.add( " 1000%", 0 );
+            }
+
+            zoomLevelCombo.setText( Integer.toString( Math.round( magnification * 100.0F ) ) + "%" );
 
             // Now update the magnification used in TransGraph
             //
-            zoomLevelCombo.removeListener(SWT.Verify, transZoomListener );
+            zoomLevelCombo.removeListener( SWT.Verify, zoomListener );
             zoomLevelCombo.notifyListeners( SWT.Selection, new Event() );
-            zoomLevelCombo.addListener(SWT.Verify, transZoomListener );
+            zoomLevelCombo.addListener( SWT.Verify, zoomListener );
             return;
           }
         }
@@ -110,29 +118,9 @@ public class ZoomLevel {
   }
 
 
-
-  private static Listener jobZoomListener = event -> {
-    // get the job zoom level whenever it's changed actively anywhere by the user...
-    //
-    Combo combo = (Combo) event.widget;
-    String oldZoom = combo.getText();
-    String newZoom = oldZoom.substring(0, event.start) + event.text + oldZoom.substring(event.end);
-
-    if ( StringUtils.isEmpty(oldZoom) || StringUtils.isEmpty( newZoom )) {
-      // Initial set, not worth remembering the incorrect value of 100% (sigh)
-      //
-      return;
-    }
-
-    String zoomText = newZoom.replace( "%", "" );
-    double magnification =  Const.toDouble( zoomText, 100.0D ) / 100;
-    ZoomLevel.getInstance().setLastJobMagnification( (float)magnification );
-  };
-
-
   public static final void changeJobGraphZoomLevel() {
     Spoon spoon = Spoon.getInstance();
-    if (spoon==null) {
+    if ( spoon == null ) {
       // Not running in spoon, don't care about zoom level...
       //
       return;
@@ -142,47 +130,15 @@ public class ZoomLevel {
 
     float magnification = ZoomLevel.getInstance().getLastJobMagnification();
 
-    JobGraph jobGraph = spoon.getActiveJobGraph();
-    if (jobGraph==null) {
-      // Nothing to see here, move along!
-      //
-      return;
-    }
-
-    // Find the toolbar, try to set the zoom level based on the last transformation magnification...
-    //
-    for (Control control : jobGraph.getChildren()) {
-      if (control instanceof ToolBar ) {
-        ToolBar toolBar = (ToolBar) control;
-        // This is the toolbar at the top of the transformation...
-        // Find the Combo with the zoom level
-        //
-        for(ToolItem toolItem : toolBar.getItems()) {
-          if (toolItem.getControl() instanceof Combo) {
-            Combo zoomLevelCombo = (Combo) toolItem.getControl();
-            zoomLevelCombo.setText( Integer.toString(Math.round(magnification * 100.0F)) + "%");
-
-            // Now update the magnification used in JobGraph
-            //
-            zoomLevelCombo.removeListener( SWT.Verify, jobZoomListener );
-            zoomLevelCombo.notifyListeners( SWT.Selection, new Event() );
-            zoomLevelCombo.addListener( SWT.Verify, jobZoomListener );
-
-            return;
-          }
-        }
-      }
-    }
+    correctActiveGraphZoomLevel( spoon.getActiveJobGraph(), magnification );
   }
 
 
-
-
-    /**
-     * Gets lastTransMagnification
-     *
-     * @return value of lastTransMagnification
-     */
+  /**
+   * Gets lastTransMagnification
+   *
+   * @return value of lastTransMagnification
+   */
   public float getLastTransMagnification() {
     return lastTransMagnification;
   }

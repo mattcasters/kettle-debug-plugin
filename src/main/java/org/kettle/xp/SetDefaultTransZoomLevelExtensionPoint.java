@@ -1,25 +1,25 @@
 package org.kettle.xp;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-import org.kettle.util.Defaults;
 import org.kettle.xp.util.ZoomLevel;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.extension.ExtensionPoint;
 import org.pentaho.di.core.extension.ExtensionPointInterface;
 import org.pentaho.di.core.logging.LogChannelInterface;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransAdapter;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.ui.core.PropsUI;
 import org.pentaho.di.ui.spoon.Spoon;
 import org.pentaho.di.ui.spoon.trans.TransGraph;
-
-import java.util.concurrent.TimeUnit;
 
 @ExtensionPoint(
   id = "SetDefaultTransZoomLevelExtensionPoint",
@@ -34,5 +34,6 @@ public class SetDefaultTransZoomLevelExtensionPoint implements ExtensionPointInt
   @Override public void callExtensionPoint( LogChannelInterface log, Object o ) throws KettleException {
 
     ZoomLevel.changeTransGraphZoomLevel();
+
   }
 }
